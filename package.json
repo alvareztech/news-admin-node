@@ -4,7 +4,8 @@
   "description": "News admin",
   "main": "index.js",
   "dependencies": {
-    "firebase-admin": "^5.13.1"
+    "firebase-admin": "^5.13.1",
+    "puppeteer": "^1.6.1"
   },
   "devDependencies": {},
   "scripts": {

@@ -1,0 +1,19 @@
+{
+  "name": "news-admin",
+  "version": "1.0.0",
+  "description": "News admin",
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^5.13.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "news"
+  ],
+  "author": "Daniel Alvarez",
+  "license": "ISC"
+}

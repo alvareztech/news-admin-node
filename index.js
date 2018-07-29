@@ -9,6 +9,8 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
+const settings = {timestampsInSnapshots: true};
+db.settings(settings);
 
 function saveNews() {
     const data = {
@@ -16,6 +18,22 @@ function saveNews() {
         author: "Daniel Alvarez"
     };
     db.collection("news").doc("news-1").set(data);
+}
+
+function saveFirebase(posts) {
+    posts.forEach((post) => {
+        console.log('Post: ' + post.title);
+        const data = {
+            title: post.title,
+            url: 'http://www.lostiempos.com' + post.url,
+            summary: post.summary,
+            image: post.image,
+            date: new Date(post.date),
+            category: post.category,
+            source: 'lostiempos.com'
+        };
+        db.collection('posts').doc().set(data);
+    });
 }
 
 
@@ -98,4 +116,5 @@ runScrapeLosTiempos(2).then(value => {
     console.log('Number of posts: ' + value.length);
     console.log('Posts:');
     console.log(value);
+    saveFirebase(value);
 }).catch(console.error);

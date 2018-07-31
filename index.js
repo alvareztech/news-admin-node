@@ -79,11 +79,16 @@ function runScrapeLosTiempos(pagesToScrape) {
 
                         let categorySpan = item.querySelector('span.views-field-seccion');
 
+                        let image = "";
+                        if (img) {
+                            image = img.getAttribute('src');
+                        }
+
                         results.push({
                             title: titleA.innerText,
                             url: titleA.getAttribute('href'),
                             summary: summary.innerText,
-                            image: img.getAttribute('src'),
+                            image: image,
                             date: dateSpan.getAttribute('content'),
                             category: categorySpan.innerText
                         });
@@ -112,7 +117,7 @@ function runScrapeLosTiempos(pagesToScrape) {
 
 // saveNews();
 // run();
-runScrapeLosTiempos(2).then(value => {
+runScrapeLosTiempos(1).then(value => {
     console.log('Number of posts: ' + value.length);
     console.log('Posts:');
     console.log(value);

@@ -36,17 +36,13 @@ function saveFirebase(posts) {
     });
 }
 
-
-const url = "http://www.lostiempos.com/ultimas-noticias";
-if (!url) {
-    throw "Please provide a URL as the first argument";
-}
-
-async function run() {
+async function makeScreenShot(url) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto(url);
-    await page.screenshot({path: 'screenshot2.png'});
+    await page.goto(url, {
+        timeout: 300000
+    });
+    await page.screenshot({path: 'screenshot.png'});
     browser.close();
 }
 
@@ -123,7 +119,9 @@ function runScrapePaginaSiete(pagesToScrape) {
             }
             const browser = await puppeteer.launch();
             const page = await browser.newPage();
-            await page.goto("https://www.paginasiete.bo/nacional/");
+            await page.goto("https://www.paginasiete.bo/nacional/", {
+                timeout: 300000
+            });
             let currentPage = 1;
             let posts = [];
             while (currentPage <= pagesToScrape) {
@@ -201,3 +199,5 @@ runScrapePaginaSiete(1).then(value => {
     console.log(value);
     // saveFirebase(value);
 }).catch(console.error);
+
+// makeScreenShot('https://www.paginasiete.bo/');

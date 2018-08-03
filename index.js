@@ -25,12 +25,12 @@ function saveFirebase(posts) {
         console.log('Post: ' + post.title);
         const data = {
             title: post.title,
-            url: 'http://www.lostiempos.com' + post.url,
+            url: post.url,
             summary: post.summary,
             image: post.image,
             date: new Date(post.date),
             category: post.category,
-            source: 'lostiempos.com'
+            source: post.source
         };
         db.collection('posts').doc().set(data);
     });
@@ -82,11 +82,12 @@ function runScrapeLosTiempos(pagesToScrape) {
 
                         results.push({
                             title: titleA.innerText,
-                            url: titleA.getAttribute('href'),
+                            url: 'http://www.lostiempos.com' + titleA.getAttribute('href'),
                             summary: summary.innerText,
                             image: image,
                             date: dateSpan.getAttribute('content'),
-                            category: categorySpan.innerText
+                            category: categorySpan.innerText,
+                            source: 'lostiempos.com'
                         });
                     });
                     return results;
@@ -130,36 +131,36 @@ function runScrapePaginaSiete(pagesToScrape) {
                     let results = [];
                     let items = document.querySelectorAll('article');
                     items.forEach((item) => {
-                        console.log(' >>> ');
                         let titleDiv = item.querySelector('h2.titulo');
-                        console.log(' > ' + titleDiv);
                         let titleA = titleDiv.querySelector('a');
-                        console.log(' > ' + titleA);
 
-                        // let summaryDiv = item.querySelector('div.views-field-field-noticia-sumario');
-                        // let summary = summaryDiv.querySelector('span.field-content');
+                        let summary = null;
+                        let summaryContainer = item.querySelector('p.resumen');
+                        if (summaryContainer) {
+                            summary = summaryContainer.innerText;
+                        }
 
                         let picture = item.querySelector('picture');
-                        let img = "";
-                        let src = "";
+                        let src = null;
                         if (picture) {
-                            img = picture.querySelector('img');
+                            let img = picture.querySelector('img');
                             if (img) {
-                                src = img.getAttribute('src');
+                                src = 'https://www.paginasiete.bo/' + img.getAttribute('src');
                             }
                         }
 
                         // let dateSpan = item.querySelector('span.date-display-single');
 
-                        // let categorySpan = item.querySelector('span.views-field-seccion');
+                        let categorySpan = item.querySelector('small.marcado');
 
                         results.push({
                             title: titleA.innerText,
-                            url: titleA.getAttribute('href'),
-                            // summary: summary.innerText,
+                            url: 'https://www.paginasiete.bo' + titleA.getAttribute('href'),
+                            summary: summary,
                             image: src,
-                            // date: dateSpan.getAttribute('content'),
-                            // category: categorySpan.innerText
+                            date: Date.now(),
+                            category: categorySpan.innerText,
+                            source: 'paginasiete.bo'
                         });
                     });
                     return results;
@@ -197,7 +198,7 @@ runScrapePaginaSiete(1).then(value => {
     console.log('Number of posts: ' + value.length);
     console.log('Posts:');
     console.log(value);
-    // saveFirebase(value);
+    saveFirebase(value);
 }).catch(console.error);
 
 // makeScreenShot('https://www.paginasiete.bo/');

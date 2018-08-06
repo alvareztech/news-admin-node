@@ -185,6 +185,85 @@ function runScrapePaginaSiete(pagesToScrape) {
     })
 }
 
+function runScrapeLaRazon(pagesToScrape) {
+    console.log('runScrapeLaRazon start.');
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!pagesToScrape) {
+                pagesToScrape = 1;
+            }
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.goto("http://www.la-razon.com/nacional/", {
+                timeout: 300000
+            });
+            let currentPage = 1;
+            let posts = [];
+
+            while (currentPage <= pagesToScrape) {
+                console.log('************************************************** Page ' + currentPage);
+                let newPosts = await page.evaluate(() => {
+                    let results = [];
+                    const baseUrl = 'http://www.la-razon.com';
+                    let generalCategory = 'bolivia';
+                    let items = document.querySelectorAll('div.md-news');
+                    items.forEach((item) => {
+                        let titleH2 = item.querySelector('h2.headline');
+                        let titleA = titleH2.querySelector('a');
+                        let title = titleA.innerText;
+
+                        let link = titleA.getAttribute('href');
+
+                        let summary = null;
+                        let summaryContainer = item.querySelector('p.teaser');
+                        if (summaryContainer) {
+                            summary = summaryContainer.innerText;
+                        }
+
+                        let img = item.querySelector('img');
+                        let image = null;
+                        if (img) {
+                            image = baseUrl + img.getAttribute('src');
+                            let index = image.lastIndexOf('_');
+                            image = image.substring(0, index) + '_3.jpg';
+                        }
+
+                        // let dateSpan = item.querySelector('span.date-display-single');
+
+                        let categorySpan = item.querySelector('small.marcado');
+
+                        results.push({
+                            title: title,
+                            url: baseUrl + link,
+                            summary: summary,
+                            image: image,
+                            date: Date.now(),
+                            category: generalCategory,
+                            source: 'la-razon.com'
+                        });
+                    });
+                    return results;
+                });
+
+                posts = posts.concat(newPosts);
+                // if (currentPage < pagesToScrape) {
+                //     await Promise.all([
+                //         // await page.click('a.morelink'),
+                //         await page.goto('http://www.lostiempos.com/ultimas-noticias?page=' + currentPage),
+                //         await page.waitForSelector('div.term-0')
+                //     ])
+                // }
+                currentPage++;
+
+            }
+            browser.close();
+            return resolve(posts);
+        } catch (e) {
+            return reject(e);
+        }
+    })
+}
+
 // saveNews();
 // run();
 // runScrapeLosTiempos(1).then(value => {
@@ -194,7 +273,15 @@ function runScrapePaginaSiete(pagesToScrape) {
 //     saveFirebase(value);
 // }).catch(console.error);
 
-runScrapePaginaSiete(1).then(value => {
+// runScrapePaginaSiete(1).then(value => {
+//     console.log('Number of posts: ' + value.length);
+//     console.log('Posts:');
+//     console.log(value);
+//     saveFirebase(value);
+// }).catch(console.error);
+
+runScrapeLaRazon(1).then(value => {
+    console.log('LA RAZON');
     console.log('Number of posts: ' + value.length);
     console.log('Posts:');
     console.log(value);
@@ -202,3 +289,4 @@ runScrapePaginaSiete(1).then(value => {
 }).catch(console.error);
 
 // makeScreenShot('https://www.paginasiete.bo/');
+// makeScreenShot('http://www.la-razon.com/nacional/');

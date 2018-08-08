@@ -1,3 +1,4 @@
+require('./constants');
 const admin = require("firebase-admin");
 const serviceAccount = require("./ServiceAccountKey.json");
 
@@ -200,7 +201,7 @@ function runScrapeLaRazon(pagesToScrape) {
             }
             const browser = await puppeteer.launch();
             const page = await browser.newPage();
-            await page.goto("http://www.la-razon.com/nacional/", {
+            await page.goto(LaRazonNacionalURL, {
                 timeout: 300000
             });
             let currentPage = 1;
@@ -210,7 +211,6 @@ function runScrapeLaRazon(pagesToScrape) {
                 console.log('************************************************** Page ' + currentPage);
                 let newPosts = await page.evaluate(() => {
                     let results = [];
-                    const baseUrl = 'http://www.la-razon.com';
                     let generalCategory = 'bolivia';
                     let items = document.querySelectorAll('div.md-news');
                     items.forEach((item) => {
@@ -240,7 +240,7 @@ function runScrapeLaRazon(pagesToScrape) {
 
                         results.push({
                             title: title,
-                            url: baseUrl + link,
+                            url: LaRazonBaseURL + link,
                             summary: summary,
                             image: image,
                             date: Date.now(),
@@ -252,15 +252,14 @@ function runScrapeLaRazon(pagesToScrape) {
                 });
 
                 posts = posts.concat(newPosts);
-                // if (currentPage < pagesToScrape) {
-                //     await Promise.all([
-                //         // await page.click('a.morelink'),
-                //         await page.goto('http://www.lostiempos.com/ultimas-noticias?page=' + currentPage),
-                //         await page.waitForSelector('div.term-0')
-                //     ])
-                // }
+                if (currentPage < pagesToScrape) {
+                    await Promise.all([
+                        // await page.click('a.morelink'),
+                        await page.goto(LaRazonNacionalURL + '?page=' + currentPage),
+                        await page.waitForSelector('div.md-news')
+                    ])
+                }
                 currentPage++;
-
             }
             browser.close();
             return resolve(posts);
@@ -286,7 +285,7 @@ function runScrapeLaRazon(pagesToScrape) {
 //     saveFirebase(value);
 // }).catch(console.error);
 
-runScrapeLaRazon(1).then(value => {
+runScrapeLaRazon(3).then(value => {
     console.log('LA RAZON');
     console.log('Number of posts: ' + value.length);
     console.log('Posts:');

@@ -94,7 +94,7 @@ function runScrapeLosTiempos(pagesToScrape) {
                             image: image,
                             date: dateSpan.getAttribute('content'),
                             category: categorySpan.innerText,
-                            source: 'lostiempos.com'
+                            source: LosTiemposSource
                         });
                     });
                     return results;
@@ -127,7 +127,7 @@ function runScrapePaginaSiete(pagesToScrape) {
             }
             const browser = await puppeteer.launch();
             const page = await browser.newPage();
-            await page.goto("https://www.paginasiete.bo/nacional/", {
+            await page.goto(PaginaSieteNacionalURL, {
                 timeout: 300000
             });
             let currentPage = 1;
@@ -152,7 +152,7 @@ function runScrapePaginaSiete(pagesToScrape) {
                         if (picture) {
                             let img = picture.querySelector('img');
                             if (img) {
-                                src = 'https://www.paginasiete.bo/' + img.getAttribute('src');
+                                src = PaginaSieteURL + img.getAttribute('src');
                             }
                         }
 
@@ -162,12 +162,12 @@ function runScrapePaginaSiete(pagesToScrape) {
 
                         results.push({
                             title: titleA.innerText,
-                            url: 'https://www.paginasiete.bo' + titleA.getAttribute('href'),
+                            url: PaginaSieteURL + titleA.getAttribute('href'),
                             summary: summary,
                             image: src,
                             date: Date.now(),
                             category: categorySpan.innerText,
-                            source: 'paginasiete.bo'
+                            source: PaginaSieteSource
                         });
                     });
                     return results;
@@ -229,7 +229,7 @@ function runScrapeLaRazon(pagesToScrape) {
                         let img = item.querySelector('img');
                         let image = null;
                         if (img) {
-                            image = baseUrl + img.getAttribute('src');
+                            image = LaRazonURL + img.getAttribute('src');
                             let index = image.lastIndexOf('_');
                             image = image.substring(0, index) + '_3.jpg';
                         }
@@ -240,12 +240,12 @@ function runScrapeLaRazon(pagesToScrape) {
 
                         results.push({
                             title: title,
-                            url: LaRazonBaseURL + link,
+                            url: LaRazonURL + link,
                             summary: summary,
                             image: image,
                             date: Date.now(),
                             category: generalCategory,
-                            source: 'la-razon.com'
+                            source: LaRazonSource
                         });
                     });
                     return results;

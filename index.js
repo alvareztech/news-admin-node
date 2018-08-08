@@ -32,7 +32,13 @@ function saveFirebase(posts) {
             category: post.category,
             source: post.source
         };
-        db.collection('posts').doc().set(data);
+        db.collection('posts').where('url', '==', data.url).get().then((snapshot) => {
+            if (snapshot.empty) {
+                db.collection('posts').doc().set(data);
+            }
+        }).catch(err => {
+            console.error('Error getting posts', err);
+        });
     });
 }
 

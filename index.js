@@ -25,7 +25,7 @@ function saveNews() {
 
 function saveFirebase(posts) {
     posts.forEach((post) => {
-        console.log('Post: ' + post.title);
+        console.log(' Post: ' + post.title);
         const data = {
             title: post.title,
             url: post.url,
@@ -45,6 +45,14 @@ function saveFirebase(posts) {
     });
 }
 
+function getPostsFirestore() {
+    db.collection('posts').get().then((snapshot) => {
+        console.log('Firestore post size: ' + snapshot.size);
+    }).catch(err => {
+        console.error('Error getting posts', err);
+    });
+}
+
 async function makeScreenShot(url) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -56,14 +64,12 @@ async function makeScreenShot(url) {
 }
 
 
-// saveNews();
-// run();
-// scrapeLosTiempos(1).then(value => {
-//     console.log('Number of posts: ' + value.length);
-//     console.log('Posts:');
-//     console.log(value);
-//     saveFirebase(value);
-// }).catch(console.error);
+getPostsFirestore();
+
+scrapeLosTiempos(1).then(value => {
+    console.log(' Posts: ' + value.length);
+    saveFirebase(value);
+}).catch(console.error);
 
 // runScrapePaginaSiete(1).then(value => {
 //     console.log('Number of posts: ' + value.length);
@@ -72,13 +78,13 @@ async function makeScreenShot(url) {
 //     saveFirebase(value);
 // }).catch(console.error);
 
-scrapeLaRazon(1).then(value => {
-    console.log('LA RAZON');
-    console.log(' Number of posts: ' + value.length);
-    console.log(' Posts:');
-    console.log(value);
-    saveFirebase(value);
-}).catch(console.error);
+// scrapeLaRazon(1).then(value => {
+//     console.log('LA RAZON');
+//     console.log(' Number of posts: ' + value.length);
+//     console.log(' Posts:');
+//     console.log(value);
+//     saveFirebase(value);
+// }).catch(console.error);
 
 // makeScreenShot('https://www.paginasiete.bo/');
 // makeScreenShot('http://www.la-razon.com/nacional/');

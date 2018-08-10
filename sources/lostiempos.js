@@ -1,7 +1,9 @@
 const puppeteer = require('puppeteer');
 
 const homeURL = 'http://www.lostiempos.com';
-const sourceKey = 'larazoncom';
+const category = 'ultimas-noticias';
+const categoryURL = homeURL + '/' + category + '/';
+const sourceKey = 'lostiemposcom';
 const categoryKey = 'bolivia';
 
 global.scrapeLosTiempos = function (pagesToScrape) {
@@ -15,12 +17,13 @@ global.scrapeLosTiempos = function (pagesToScrape) {
             }
             const browser = await puppeteer.launch();
             const page = await browser.newPage();
-            await page.goto("http://www.lostiempos.com/ultimas-noticias");
+            await page.goto(categoryURL);
             let currentPage = 1;
             let posts = [];
             while (currentPage <= pagesToScrape) {
                 console.log(' Page: ' + currentPage);
-                let newPosts = await page.evaluate(() => {
+                let newPosts = await page.evaluate(({homeURL, sourceKey}) => {
+                    console.log(' ARGS: ' + homeURL + ' ' + sourceKey);
                     let results = [];
                     let items = document.querySelectorAll('div.term-0');
                     items.forEach((item) => {
@@ -39,26 +42,27 @@ global.scrapeLosTiempos = function (pagesToScrape) {
                         let image = "";
                         if (img) {
                             image = img.getAttribute('src');
+                            image = image.replace('noticia_home_tipo_1', 'noticia_detalle');
                         }
 
                         results.push({
                             title: titleA.innerText,
-                            url: 'http://www.lostiempos.com' + titleA.getAttribute('href'),
+                            url: homeURL + titleA.getAttribute('href'),
                             summary: summary.innerText,
                             image: image,
                             date: dateSpan.getAttribute('content'),
                             category: categorySpan.innerText,
-                            source: LosTiemposSource
+                            source: sourceKey
                         });
                     });
                     return results;
-                });
+                }, {homeURL, sourceKey});
 
                 posts = posts.concat(newPosts);
                 if (currentPage < pagesToScrape) {
                     await Promise.all([
                         // await page.click('a.morelink'),
-                        await page.goto('http://www.lostiempos.com/ultimas-noticias?page=' + currentPage),
+                        await page.goto(categoryURL + '?page=' + currentPage),
                         await page.waitForSelector('div.term-0')
                     ])
                 }
